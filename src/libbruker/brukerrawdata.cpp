@@ -1,5 +1,6 @@
 #include "brukerrawdata.hpp"
 #include <iostream>
+#include <climits>
 
 BrukerRawDataProfile::BrukerRawDataProfile()
   : m_uiProfileLength(0),

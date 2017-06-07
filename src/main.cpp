@@ -33,8 +33,8 @@ int main(int argc, char** argv)
             ("help,h", "produce help message")
             ("filename,f", po::value<std::string>(&in_filename), "Input file")
             ("outfile,o", po::value<std::string>(&out_filename)->default_value("out.h5"), "Output file")
-            ("out-group,G", po::value<std::string>(&out_group)->default_value("dataset"), "Output group name") 
-            ("no-subject,N","no subject information") 
+            ("out-group,G", po::value<std::string>(&out_group)->default_value("dataset"), "Output group name")
+            ("no-subject,N","no subject information")
             ;
 
     po::variables_map vm;
@@ -63,14 +63,24 @@ int main(int argc, char** argv)
     std::string methodfilename = in_filename + std::string("/method");
     std::string subjectfilename = in_filename + std::string("/../subject");
 
+    std::cout << fidfilename<< std::endl;
+    std::cout << acqpfilename<< std::endl;
+    std::cout << methodfilename<< std::endl;
+    std::cout << subjectfilename<< std::endl;
+
     // Parse Bruker parameters
     BrukerParameterFile acqpar(acqpfilename);
+    std::cout << "acqpar" << std::endl;
     BrukerParameterFile methodpar(methodfilename);
+    std::cout << "methodpar" << std::endl;
     BrukerParameterFile subjectpar(subjectfilename);
+    std::cout << "subjectpar" << std::endl;
 
     // Get the profile list and the first profile
     BrukerProfileListGenerator lg;
     BrukerRawDataProfile* first = lg.GetProfileList(&acqpar,&methodpar);
+
+    std::cout << "first" << std::endl;
 
     // Some parameters from the profile list
     int size_kx = lg.GetDimensionSize(0);
@@ -84,12 +94,16 @@ int main(int argc, char** argv)
     int kz_min = lg.GetMinEncodingStep2();
     int kz_max = lg.GetMaxEncodingStep2();
 
+    std::cout << "parameters" << std::endl;
+
     // Some parameters from the acqp and method files
     // TODO most of these can probably found in the lg above
     // have to add some methods to the BrukerProfileListGenerator
     BrukerParameter* p;
     p = acqpar.FindParameter("SW");
     int freq = floor(p->GetValue(0)->GetFloatValue() * 1000000);
+
+    std::cout << "freq" << std::endl;
 
     // Encoding info
     //p = methodpar.FindParameter("PVM_SpatDimEnum");
@@ -102,25 +116,32 @@ int main(int argc, char** argv)
     int nz = lg.GetNumberOfObjects() / lg.GetNumberOfEchos();
     int nc = lg.GetNumberOfChannels();
 
+    std::cout << "methodpar" << std::endl;
+    std::cout << "nc" <<   nc  <<std::endl;
+
     p = methodpar.FindParameter("PVM_Fov");
     int fovx = p->GetValue(0)->GetIntValue();
     int fovy = p->GetValue(1)->GetIntValue();
     p = acqpar.FindParameter("ACQ_slice_thick");
     int fovz = p->GetValue(0)->GetIntValue();
 
+    std::cout << "fovz" <<  fovx<< "  " <<  fovy  << " "<<  fovz << std::endl;
+
     // Subject Info
     p = subjectpar.FindParameter("SUBJECT_name_string");
-    std::string subject_name = p->GetValue(0)->GetStringValue();
+    std::string subject_name = p->GetValue(0)->GetStringValue();   std::cout << "subject_name" << std::endl;
     p = subjectpar.FindParameter("SUBJECT_study_name");
-    std::string study_description = p->GetValue(0)->GetStringValue();
+    std::string study_description = p->GetValue(0)->GetStringValue();  std::cout << "study_description" << std::endl;
     p = subjectpar.FindParameter("SUBJECT_study_instance_uid");
-    std::string study_instanceUID = p->GetValue(0)->GetStringValue();
+    std::string study_instanceUID = p->GetValue(0)->GetStringValue();  std::cout << "study_instanceUID" << std::endl;
     p = subjectpar.FindParameter("SUBJECT_entry");
     std::string patient_entry = p->GetValue(0)->GetStringValue();
     p = subjectpar.FindParameter("SUBJECT_position");
     std::string patient_position = p->GetValue(0)->GetStringValue();
     p = subjectpar.FindParameter("SUBJECT_date");
     std::string study_date = p->GetValue(0)->GetStringValue();
+
+    std::cout << "study_date" << std::endl;
 
     // Geometry
     float read_offset_mm[nz];
@@ -155,31 +176,31 @@ int main(int argc, char** argv)
     for ( int i=0; i<nz; i++ ) {
         for ( int j=0; j<3; j++ ) {
             for ( int k=0; k<3; k++ ) {
-                 grad_matrix[i][j][k] = p->GetValue(gmcnt)->GetFloatValue();
-                 gmcnt++;
+                grad_matrix[i][j][k] = p->GetValue(gmcnt)->GetFloatValue();
+                gmcnt++;
             }
-         }
-     }
+        }
+    }
 
     std::cout << "YO MAMA!" << std::endl;
     
 
     // Write some info out to the user
-    //lg.PrintParameters();            
+    //lg.PrintParameters();
     //std::cout << "Spatial Dimensions: " << image_type << std::endl;
-    std::cout << "Subject name: " << subject_name << std::endl;
-    std::cout << "Study description: " << study_description << std::endl;
-    std::cout << "Study instance: " << study_instanceUID << std::endl;
-    std::cout << "Patient entry: " << patient_entry << std::endl;
-    std::cout << "Patient Position: " << patient_position << std::endl;    
+    //std::cout << "Subject name: " << subject_name << std::endl;
+    //std::cout << "Study description: " << study_description << std::endl;
+    //std::cout << "Study instance: " << study_instanceUID << std::endl;
+    //std::cout << "Patient entry: " << patient_entry << std::endl;
+    //std::cout << "Patient Position: " << patient_position << std::endl;
     //std::cout << "Frequency: " << freq << std::endl;
     //std::cout << "Number of channels: " << nc << std::endl;
-    //std::cout << "Nx: " << nx << std::endl;
-    //std::cout << "Ny: " << ny << std::endl;
-    //std::cout << "Nz: " << nz << std::endl;
-    //std::cout << "FOV_x: " << fovx << std::endl;
-    //std::cout << "FOV_y: " << fovy << std::endl;
-    //std::cout << "FOV_z: " << fovz << std::endl;
+    std::cout << "Nx: " << nx << std::endl;
+    std::cout << "Ny: " << ny << std::endl;
+    std::cout << "Nz: " << nz << std::endl;
+    std::cout << "FOV_x: " << fovx << std::endl;
+    std::cout << "FOV_y: " << fovy << std::endl;
+    std::cout << "FOV_z: " << fovz << std::endl;
 
     // Create the dataset
     ISMRMRD::Dataset dataset(out_filename.c_str(), out_group.c_str());
@@ -230,7 +251,7 @@ int main(int argc, char** argv)
     ISMRMRD::serialize( h, str);
     std::string xml_header = str.str();
     //std::cout << xml_header << std::endl;
-        
+
     //Write the header to the data file.
     dataset.writeHeader(xml_header);
     std::cout << "Wrote XML header" << std::endl;
@@ -274,9 +295,9 @@ int main(int argc, char** argv)
         acq.idx().repetition = current->GetRepetitionNo();
         int curslice = counter % nz;
         for ( int i=0; i<2; i++ ) {
-             acq.read_dir()[i] = grad_matrix[curslice][0][i];
-             acq.phase_dir()[i] = grad_matrix[curslice][1][i];
-             acq.slice_dir()[i] = grad_matrix[curslice][2][i];
+            acq.read_dir()[i] = grad_matrix[curslice][0][i];
+            acq.phase_dir()[i] = grad_matrix[curslice][1][i];
+            acq.slice_dir()[i] = grad_matrix[curslice][2][i];
         }
 
         // Set some flags

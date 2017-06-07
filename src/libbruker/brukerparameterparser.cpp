@@ -11,9 +11,10 @@
  ********************************************************/
 
 #include "brukerparameterparser.hpp"
-
+#include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <cstdlib>
 
 BrukerParameterFile::BrukerParameterFile(std::string filename)
   : m_pLexer(0),
